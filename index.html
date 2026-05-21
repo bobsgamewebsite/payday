@@ -6,18 +6,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
   body { margin:0; font-family:Arial, sans-serif; background:#f5f5f5; color:#111; }
-  header { background:#1d2228; color:white; padding:16px 24px; font-size:22px; font-weight:bold; border-bottom:2px solid #0f8bff; }
+  header { background:#1d2228; color:white; padding:16px 24px; font-size:22px; font-weight:bold; border-bottom:2px solid #410093; }
   .container { max-width:900px; margin:24px auto; background:white; padding:22px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.15); }
   h2 { margin-top:0; font-size:18px; font-weight:bold; color:#333; }
   input, textarea { width:100%; padding:10px; border:1px solid #ccc; border-radius:6px; font-family:Consolas, monospace; font-size:13px; box-sizing:border-box; }
   textarea { resize:vertical; }
   #aiOutput { height:260px; }
-  button { margin-top:10px; padding:10px 16px; background:#0f8bff; border:none; border-radius:6px; color:white; font-weight:bold; cursor:pointer; font-size:14px; }
+  button { margin-top:10px; padding:10px 16px; background:#410093; border:none; border-radius:6px; color:white; font-weight:bold; cursor:pointer; font-size:14px; }
 </style>
 </head>
 
 <body>
-<header>Payday v1.1</header>
+<header>Payday v1.2</header>
 
 <div class="container">
   <h2>Suggest a ticker (optional)</h2>
@@ -89,18 +89,49 @@ PAYDAY ANALYST INPUT
 Market Feed (Finnhub /quote):
 ${feed}
 
-User Suggestion:
+User Suggested Ticker:
 ${suggest || "None"}
 
 TASK:
-Act as a professional equity market analyst.
-Using only the feed above, do ALL of the following:
-- Identify strongest momentum names (price + % change).
-- Identify biggest losers.
-- Call out any names with outsized moves vs peers.
-- Note any interesting patterns (mega-cap vs others, sectors if obvious from tickers).
-- If a suggestion is provided, analyze that ticker in detail: trend, risk, and how it compares to the rest of the list.
-Return a concise but information-dense written analysis, not a table.
+Act as a high-conviction institutional equity analyst and short-term market strategist.
+
+Analyze ONLY the market feed above and produce a concise but insight-dense market briefing.
+
+Your analysis MUST:
+- Identify the strongest bullish momentum names based on both % change and quality of move.
+- Identify the weakest names and explain why the weakness matters.
+- Highlight any statistically unusual or outsized moves relative to mega-cap norms.
+- Rank the best trading opportunities from strongest to weakest.
+- Distinguish between:
+  - momentum breakouts,
+  - defensive strength,
+  - weak bounces,
+  - and potential overreactions.
+- Infer sector behavior when obvious from tickers.
+- Explain where institutional money appears to be flowing.
+- Compare mega-cap leadership vs secondary names.
+- Explicitly state which stocks look:
+  - bullish,
+  - bearish,
+  - extended,
+  - or worth watching.
+
+If a suggested ticker is provided:
+- Analyze its trend strength, momentum quality, relative performance, and risk.
+- Compare it directly against the strongest names in the feed.
+- State whether it looks like:
+  - a leader,
+  - laggard,
+  - rotation candidate,
+  - or avoid.
+
+STYLE:
+- Sound like a professional buy-side market strategist.
+- Prioritize actionable insight over narration.
+- Avoid generic phrases like "may indicate" unless uncertainty is truly high.
+- Do NOT simply summarize movers; interpret them.
+- Focus on relative strength, market psychology, positioning, and risk/reward.
+- Output in tight paragraphs, not bullet spam or tables.
 `;
 
   out.value = "Sending to Groq...";
