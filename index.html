@@ -1,15 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <title>Payday</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
-  body { margin:0; font-family:Arial; background:#f5f5f5; }
-  header { background:#1d2228; color:white; padding:16px; font-size:22px; font-weight:bold; }
-  .container { max-width:900px; margin:20px auto; background:white; padding:20px; border-radius:8px; }
-  textarea, input { width:100%; padding:10px; margin-top:10px; border:1px solid #ccc; border-radius:6px; font-family:Consolas; }
+  body { margin:0; font-family:Arial, sans-serif; background:#f5f5f5; color:#111; }
+  header { background:#1d2228; color:white; padding:16px 24px; font-size:22px; font-weight:bold; border-bottom:2px solid #0f8bff; }
+  .container { max-width:900px; margin:24px auto; background:white; padding:22px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.15); }
+  h2 { margin-top:0; font-size:18px; font-weight:bold; color:#333; }
+  input, textarea { width:100%; padding:10px; border:1px solid #ccc; border-radius:6px; font-family:Consolas, monospace; font-size:13px; box-sizing:border-box; }
+  textarea { resize:vertical; }
   #aiOutput { height:260px; }
-  button { margin-top:10px; padding:10px 16px; background:#0f8bff; border:none; border-radius:6px; color:white; font-weight:bold; cursor:pointer; }
+  button { margin-top:10px; padding:10px 16px; background:#0f8bff; border:none; border-radius:6px; color:white; font-weight:bold; cursor:pointer; font-size:14px; }
 </style>
 </head>
 
@@ -17,96 +20,114 @@
 <header>Payday</header>
 
 <div class="container">
-
   <h2>Suggest a ticker (optional)</h2>
   <input id="suggestBox" placeholder="Example: NVDA" />
 
   <button id="runBtn">Run Analyst</button>
 
-  <h2>Payday Analyst</h2>
+  <h2>Payday Analyst Output</h2>
   <textarea id="aiOutput" readonly></textarea>
-
 </div>
 
 <script>
-const FMP_KEY = "9JdfXFF1la9PBjBSJMWR7MfPDXwLfHTS";
-const GROQ_KEY = "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"; 
-// S&P100
+const FINNHUB_TOKEN = "d87mv7pr01qmhakghddgd87mv7pr01qmhakghde0";
+const GROQ_KEY = "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";
+
 const SYMBOLS = [
-  "AAPL","MSFT","GOOGL","AMZN","NVDA","META","TSLA","BRK.B","JPM","V",
-  "JNJ","WMT","PG","MA","HD","XOM","COST","AVGO","LLY","UNH",
-  "PEP","KO","ABBV","ADBE","CRM","CSCO","ACN","TXN","CMCSA","NKE",
-  "MRK","MCD","AMD","INTC","AMGN","IBM","ORCL","QCOM","UPS","CVX"
+  "AAPL","MSFT","GOOGL","AMZN","NVDA","META","TSLA","JPM","V","HD",
+  "UNH","XOM","LLY","AVGO","COST","PEP","KO","ABBV","ADBE","CRM",
+  "CSCO","ACN","TXN","CMCSA","NKE","MRK","MCD","AMD","INTC","AMGN",
+  "IBM","ORCL","QCOM","UPS","CVX","WMT","PG","BRK.B","NFLX","PYPL"
 ];
 
-function fmt(n){ return isNaN(n)?"-":Number(n).toFixed(2); }
-
-async function fetchQuote(sym){
-  const url = `https://financialmodelingprep.com/stable/historical-price-eod/full?symbol=${sym}&apikey=${FMP_KEY}`;
-  const r = await fetch(url);
-  const j = await r.json();
-  return j[0];
+function fmt(n, d = 2) {
+  if (n === null || n === undefined || isNaN(n)) return "-";
+  return Number(n).toFixed(d);
 }
 
-async function buildFeed(){
+async function fetchQuote(sym) {
+  const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(sym)}&token=${FINNHUB_TOKEN}`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error("Finnhub HTTP " + r.status);
+  const j = await r.json();
+  if (!j || typeof j.c !== "number") throw new Error("Bad Finnhub payload");
+  return {
+    symbol: sym,
+    price: j.c,
+    change: j.d,
+    percent: j.dp,
+    high: j.h,
+    low: j.l,
+    prevClose: j.pc,
+    ts: j.t
+  };
+}
+
+async function buildFeed() {
   let feed = "";
-  for(const sym of SYMBOLS){
-    try{
+  for (const sym of SYMBOLS) {
+    try {
       const q = await fetchQuote(sym);
-      if(!q) continue;
-      feed += `${sym} price:${fmt(q.price)} change:${fmt(q.change)} pct:${fmt(q.changesPercentage)} vol:${q.volume}\n`;
-    }catch(e){}
+      feed += `${q.symbol} price:${fmt(q.price)} change:${fmt(q.change)} pct:${fmt(q.percent)} high:${fmt(q.high)} low:${fmt(q.low)} prevClose:${fmt(q.prevClose)}\n`;
+    } catch (e) {
+      // skip symbol on error
+    }
   }
   return feed;
 }
 
-async function runAnalyst(){
+async function runAnalyst() {
   const out = document.getElementById("aiOutput");
   const suggest = document.getElementById("suggestBox").value.trim();
 
-  out.value = "Loading market data...";
+  out.value = "Loading market data from Finnhub...";
 
   const feed = await buildFeed();
 
   const finalPrompt = `
 PAYDAY ANALYST INPUT
 --------------------
-Market Feed:
+Market Feed (Finnhub /quote):
 ${feed}
 
 User Suggestion:
 ${suggest || "None"}
 
 TASK:
-Analyze the market feed like a professional financial analyst.
-Identify:
-- strongest momentum
-- biggest losers
-- unusual volume
-- sector trends
-- anything notable
-- if suggestion is provided, analyze that ticker deeply
+Act as a professional equity market analyst.
+Using only the feed above, do ALL of the following:
+- Identify strongest momentum names (price + % change).
+- Identify biggest losers.
+- Call out any names with outsized moves vs peers.
+- Note any interesting patterns (mega-cap vs others, sectors if obvious from tickers).
+- If a suggestion is provided, analyze that ticker in detail: trend, risk, and how it compares to the rest of the list.
+Return a concise but information-dense written analysis, not a table.
 `;
 
-  out.value = "Sending to Groq...";
+  out.value = "Sending to Groq (Llama 3.1 70B)...";
 
-  const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      "Authorization":"Bearer " + GROQ_KEY
-    },
-    body:JSON.stringify({
-      model:"llama-3.1-70b-versatile",
-      messages:[
-        {role:"system", content:"You are Payday, a financial analyst."},
-        {role:"user", content:finalPrompt}
-      ]
-    })
-  });
+  try {
+    const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + GROQ_KEY
+      },
+      body: JSON.stringify({
+        model: "llama-3.1-70b-versatile",
+        messages: [
+          { role: "system", content: "You are Payday, a sharp, opinionated equity market analyst. Be direct, structured, and actionable." },
+          { role: "user", content: finalPrompt }
+        ]
+      })
+    });
 
-  const j = await r.json();
-  out.value = j.choices?.[0]?.message?.content || "Groq error.";
+    const j = await r.json();
+    const text = j?.choices?.[0]?.message?.content;
+    out.value = text || "Groq returned no content.";
+  } catch (e) {
+    out.value = "Groq request failed: " + e.message;
+  }
 }
 
 document.getElementById("runBtn").onclick = runAnalyst;
