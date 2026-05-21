@@ -42,7 +42,7 @@ const SYMBOLS = [
 function fmt(n){ return isNaN(n)?"-":Number(n).toFixed(2); }
 
 async function fetchQuote(sym){
-  const url = `https://financialmodelingprep.com/api/v3/quote/${sym}?apikey=${FMP_KEY}`;
+  const url = `https://financialmodelingprep.com/stable/historical-price-eod/full?symbol=${sym}&apikey=${FMP_KEY}`;
   const r = await fetch(url);
   const j = await r.json();
   return j[0];
