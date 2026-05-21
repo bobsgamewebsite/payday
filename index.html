@@ -5,25 +5,80 @@
 <title>Payday</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
-  body { margin:0; font-family:Arial, sans-serif; background:#f5f5f5; color:#111; }
-  header { background:#1d2228; color:white; padding:16px 24px; font-size:22px; font-weight:bold; border-bottom:4px solid #410093; }
-  .container { max-width:900px; margin:24px auto; background:white; padding:22px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.15); }
-  h2 { margin-top:0; font-size:18px; font-weight:bold; color:#333; }
-  input, textarea { width:100%; padding:10px; border:1px solid #ccc; border-radius:6px; font-family:Consolas, monospace; font-size:13px; box-sizing:border-box; }
-  textarea { resize:vertical; }
-  #aiOutput { height:260px; }
-  button { margin-top:10px; padding:10px 16px; background:#410093; border:none; border-radius:6px; color:white; font-weight:bold; cursor:pointer; font-size:14px; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  color: #111;
+}
+header {
+  background:#1d2228;
+  color:white;
+  padding:10px 24px;
+  font-size:22px;
+  font-weight:bold;
+  border-bottom:4px solid #16A34A;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+header img {
+  height:32px;
+  width:auto;
+  display:block;
+}
+.container {
+  width:1600px;
+  margin:30px auto;
+  background:white;
+  padding:28px;
+  border-radius:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.15);
+}
+h2 {
+  margin-top:0;
+  font-size:20px;
+  font-weight:bold;
+  color:#333;
+}
+input, textarea {
+  width:100%;
+  padding:12px;
+  border:1px solid #ccc;
+  border-radius:6px;
+  font-family:Consolas, monospace;
+  font-size:14px;
+  box-sizing:border-box;
+}
+#aiOutput {
+  height:500px;
+  resize:vertical;
+}
+button {
+  margin-top:12px;
+  padding:12px 20px;
+  background:#16A34A;
+  border:none;
+  border-radius:6px;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+  font-size:15px;
+}
 </style>
 </head>
 
 <body>
-<header>Payday v1.2</header>
+<header>
+  <img src="payday-logo.svg">
+  Payday v1.3
+</header>
 
 <div class="container">
   <h2>Suggest a ticker (optional)</h2>
   <input id="suggestBox" placeholder="Example: NVDA" />
 
-  <button id="runBtn">Run Analyst</button>
+  <button id="runBtn">Run Payday</button>
 
   <h2>Payday Analyst Output</h2>
   <textarea id="aiOutput" readonly></textarea>
@@ -32,11 +87,14 @@
 <script>
 const GROQ_KEY = "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";
 
+const SHEET_URL =
+  "https://docs.google.com/spreadsheets/d/1EKabJN1aa_60cvTNJbcA3TElIayT3OjrH7lx793fFew/gviz/tq?tqx=out:json";
+
+const SHEET_WRITE_URL =
+  "https://script.google.com/macros/s/AKfycbzPKVd5cu1_ZTEyzyPfwE3wJlnISIDs4gtg4Xg_IpyYOJhrDZa5NQysUc1e40o7qhy46A/exec";
+
 const SYMBOLS = [
-  "AAPL","MSFT","GOOGL","AMZN","NVDA","META","TSLA","JPM","V","HD",
-  "UNH","XOM","LLY","AVGO","COST","PEP","KO","ABBV","ADBE","CRM",
-  "CSCO","ACN","TXN","CMCSA","NKE","MRK","MCD","AMD","INTC","AMGN",
-  "IBM","ORCL","QCOM","UPS","CVX","WMT","PG","BRK.B","NFLX","PYPL"
+  "AAPL","ABBV","ABT","ACN","ADBE","AIG","AMGN","AMZN","AVGO","AXP","BA","BAC","BK","BKNG","BLK","BMY","BRK.B","C","CAT","CHTR","CI","CL","CMCSA","COF","COP","COST","CRM","CSCO","CVS","CVX","DD","DE","DHR","DIS","DOW","DUK","ELV","EMR","EXC","F","FDX","GD","GE","GILD","GM","GOOGL","GS","HD","HON","IBM","INTC","JNJ","JPM","KHC","KO","LIN","LLY","LMT","LOW","MA","MCD","MDLZ","MDT","MET","META","MMM","MO","MRK","MS","MSFT","NEE","NFLX","NKE","NVDA","ORCL","PEP","PFE","PG","PM","PYPL","QCOM","RTX","SBUX","SO","SPG","T","TGT","TMO","TSLA","TXN","UNH","UNP","UPS","USB","V","VZ","WBA","WFC","WMT","XOM"
 ];
 
 function fmt(n, d = 2) {
@@ -47,9 +105,7 @@ function fmt(n, d = 2) {
 async function fetchQuote(sym) {
   const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(sym)}&token=d87mv7pr01qmhakghddgd87mv7pr01qmhakghde0`;
   const r = await fetch(url);
-  if (!r.ok) throw new Error("Finnhub HTTP " + r.status);
   const j = await r.json();
-  if (!j || typeof j.c !== "number") throw new Error("Bad Finnhub payload");
   return {
     symbol: sym,
     price: j.c,
@@ -62,24 +118,64 @@ async function fetchQuote(sym) {
   };
 }
 
+async function readSheetCache() {
+  const r = await fetch(SHEET_URL);
+  const text = await r.text();
+  const json = JSON.parse(text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1));
+  const table = json.table;
+  const rows = table.rows.slice(1).map(r => r.c.map(c => (c ? c.v : null)));
+  const updatedAt = table.rows[1].c[7]?.v || null;
+  return { rows, updatedAt };
+}
+
+async function writeSheetCache(rows) {
+  await fetch(SHEET_WRITE_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      rows,
+      timestamp: Date.now()
+    })
+  });
+}
+
 async function buildFeed() {
-  let feed = "";
+  const cache = await readSheetCache();
+  let useCache = false;
+
+  if (cache.updatedAt) {
+    const age = Date.now() - new Date(cache.updatedAt).getTime();
+    if (age < 15 * 60 * 1000) useCache = true;
+  }
+
+  if (useCache) {
+    return cache.rows
+      .map(r => `${r[0]} price:${fmt(r[1])} change:${fmt(r[2])} pct:${fmt(r[3])} high:${fmt(r[4])} low:${fmt(r[5])} prevClose:${fmt(r[6])}`)
+      .join("\n");
+  }
+
+  let freshRows = [];
   for (const sym of SYMBOLS) {
     try {
       const q = await fetchQuote(sym);
-      feed += `${q.symbol} price:${fmt(q.price)} change:${fmt(q.change)} pct:${fmt(q.percent)} high:${fmt(q.high)} low:${fmt(q.low)} prevClose:${fmt(q.prevClose)}\n`;
-    } catch (e) {
-      // skip symbol on error
-    }
+      freshRows.push([
+        q.symbol, q.price, q.change, q.percent,
+        q.high, q.low, q.prevClose
+      ]);
+    } catch (e) {}
   }
-  return feed;
+
+  await writeSheetCache(freshRows);
+
+  return freshRows
+    .map(r => `${r[0]} price:${fmt(r[1])} change:${fmt(r[2])} pct:${fmt(r[3])} high:${fmt(r[4])} low:${fmt(r[5])} prevClose:${fmt(r[6])}`)
+    .join("\n");
 }
 
 async function runAnalyst() {
   const out = document.getElementById("aiOutput");
   const suggest = document.getElementById("suggestBox").value.trim();
 
-  out.value = "Loading market data from Finnhub...";
+  out.value = "Loading market data...";
 
   const feed = await buildFeed();
 
@@ -89,7 +185,7 @@ PAYDAY ANALYST INPUT
 Market Feed:
 ${feed}
 
-Suggested Ticker:
+Only ticker you can talk about UNLESS it shows None. If it's an unknown ticker, just state "Provided Ticker is unknown.":
 ${suggest || "None"}
 
 TASK:
