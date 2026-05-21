@@ -86,52 +86,39 @@ async function runAnalyst() {
   const finalPrompt = `
 PAYDAY ANALYST INPUT
 --------------------
-Market Feed (Finnhub /quote):
+Market Feed:
 ${feed}
 
-User Suggested Ticker:
+Suggested Ticker:
 ${suggest || "None"}
 
 TASK:
-Act as a high-conviction institutional equity analyst and short-term market strategist.
+Act as a high-conviction equity trader.
 
-Analyze ONLY the market feed above and produce a concise but insight-dense market briefing.
+Using ONLY the feed:
+- Identify strongest momentum names.
+- Identify weakest names.
+- Call out unusual/outlier moves.
+- Rank best bullish setups.
+- Rank weakest bearish setups.
+- Note obvious sector rotation or relative strength.
 
-Your analysis MUST:
-- Identify the strongest bullish momentum names based on both % change and quality of move.
-- Identify the weakest names and explain why the weakness matters.
-- Highlight any statistically unusual or outsized moves relative to mega-cap norms.
-- Rank the best trading opportunities from strongest to weakest.
-- Distinguish between:
-  - momentum breakouts,
-  - defensive strength,
-  - weak bounces,
-  - and potential overreactions.
-- Infer sector behavior when obvious from tickers.
-- Explain where institutional money appears to be flowing.
-- Compare mega-cap leadership vs secondary names.
-- Explicitly state which stocks look:
-  - bullish,
-  - bearish,
-  - extended,
-  - or worth watching.
-
-If a suggested ticker is provided:
-- Analyze its trend strength, momentum quality, relative performance, and risk.
-- Compare it directly against the strongest names in the feed.
-- State whether it looks like:
-  - a leader,
+If a ticker is suggested:
+- Compare it against the leaders.
+- State clearly if it is:
+  - leader,
+  - breakout,
   - laggard,
-  - rotation candidate,
+  - overextended,
   - or avoid.
 
 STYLE:
-- Sound like a professional buy-side market strategist.
-- Prioritize actionable insight over narration.
-- Avoid generic phrases like "may indicate" unless uncertainty is truly high.
-- Do NOT simply summarize movers; interpret them.
-- Focus on relative strength, market psychology, positioning, and risk/reward.
-- Output in tight paragraphs, not bullet spam or tables.
+- Sound like a hedge fund desk note.
+- Be concise, direct, and opinionated.
+- Prioritize actionable conclusions.
+- No hedging or filler.
+- No tables.
+- Keep output under 250 words.
 `;
 
   out.value = "Sending to Groq...";
