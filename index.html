@@ -155,15 +155,16 @@ async function buildFeed() {
   }
 
   let freshRows = [];
-  for (const sym of SYMBOLS) {
-    try {
-      const q = await fetchQuote(sym);
-      freshRows.push([
-        q.symbol, q.price, q.change, q.percent,
-        q.high, q.low, q.prevClose
-      ]);
-    } catch (e) {}
-  }
+for (const sym of SYMBOLS) {
+  try {
+    const q = await fetchQuote(sym);
+    freshRows.push([
+      q.symbol, q.price, q.change, q.percent,
+      q.high, q.low, q.prevClose
+    ]);
+  } catch (e) {}
+  await new Promise(r => setTimeout(r, 250));
+}
 
   await writeSheetCache(freshRows);
 
