@@ -103,7 +103,7 @@ Using only the feed above, do ALL of the following:
 Return a concise but information-dense written analysis, not a table.
 `;
 
-  out.value = "Sending to Groq (Llama 3.1 70B)...";
+  out.value = "Sending to Groq...";
 
   try {
     const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -113,7 +113,7 @@ Return a concise but information-dense written analysis, not a table.
         "Authorization": "Bearer " + GROQ_KEY
       },
       body: JSON.stringify({
-        model: "llama-3.1-70b-versatile",
+        model: "llama-3.3-70b-versatile",
         messages: [
           { role: "system", content: "You are Payday, a sharp, opinionated equity market analyst. Be direct, structured, and actionable." },
           { role: "user", content: finalPrompt }
