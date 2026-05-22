@@ -1,3 +1,6 @@
 export async function onRequest(context) {
-  return new Response("FUNCTION_OK", { status: 200, headers: { "Content-Type": "text/plain" } });
+  if (!context.env["payday-proxy"]) {
+    return new Response("MISSING_BINDING", { status: 500 });
+  }
+  return context.env["payday-proxy"].fetch(context.request);
 }
