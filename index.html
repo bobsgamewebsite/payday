@@ -75,7 +75,7 @@ button {
 <body>
 <header>
   <img src="payday-logo.svg">
-  Version v1.3
+  Version v1.4
 </header>
 
 <div class="container">
@@ -125,40 +125,59 @@ async function runAnalyst() {
 
   const finalPrompt = `
 PAYDAY ANALYST INPUT
---------------------
+
 Market Feed:
 ${feed}
 
-This is the only ticker you can talk about UNLESS it shows None. If it's an unknown ticker, just state "Provided Ticker is unknown.":
+Ticker Constraint:
 ${suggest || "None"}
 
-TASK:
-Act as a high-conviction equity trader.
+RULES:
 
-Using ONLY the feed:
-- Identify strongest momentum names.
-- Identify weakest names.
-- Call out unusual/outlier moves.
-- Rank best bullish setups.
-- Rank weakest bearish setups.
-- Note obvious sector rotation or relative strength.
+Use ONLY information present in the feed.
+Do not invent catalysts, news, earnings data, or macro context.
+If the suggested ticker is invalid or absent from the feed, state:
+"Provided ticker is unknown."
+Do not discuss any ticker outside the feed unless required by the invalid ticker response.
 
-If a ticker is suggested:
-- Compare it against the leaders.
-- State clearly if it is:
-  - leader,
-  - breakout,
-  - laggard,
-  - overextended,
-  - or avoid.
+OBJECTIVE:
+Write a hedge fund-style momentum desk note focused on:
+
+strongest upside momentum
+weakest downside momentum
+abnormal/outlier price action
+relative strength and sector leadership
+actionable long and short setups
+
+REQUIRED OUTPUT:
+
+Market Regime
+One sentence describing overall tape behavior.
+Bullish Leaders
+Rank top bullish setups from strongest to weakest.
+Include brief reasoning using ONLY feed behavior.
+Bearish Laggards
+Rank weakest setups from worst to less weak.
+Explain why they are failing.
+Outlier Moves
+Identify unusual volatility, squeezes, breakdowns, reversals, or relative strength divergence.
+Suggested Ticker Review
+If a ticker is provided, classify it as exactly ONE:
+leader
+breakout
+laggard
+overextended
+avoid
+Compare it directly against the strongest names in the feed.
 
 STYLE:
-- Sound like a hedge fund desk note.
-- Be concise, direct, and opinionated.
-- Prioritize actionable conclusions.
-- No hedging or filler.
-- No tables.
-- Keep output under 250 words.
+
+Sound like an institutional trading desk note.
+Be decisive and high-conviction.
+Prioritize positioning and relative strength.
+No filler, no disclaimers, no educational tone.
+No tables.
+Maximum 220 words.
 `;
 
   out.value = "Sending to Groq...";
