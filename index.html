@@ -75,7 +75,7 @@ button {
 <body>
 <header>
   <img src="payday-logo.svg">
-  Version v1.4
+  Version v1.5
 </header>
 
 <div class="container">
@@ -135,63 +135,44 @@ ${suggest || "None"}
 RULES:
 
 Use ONLY the feed.
-No outside news, catalysts, macro, or earnings assumptions.
-If ticker is invalid or missing from the feed, say:
+Do not invent catalysts, news, or flows.
+All conclusions must come from relative price comparison across tickers in the feed.
+Do NOT infer institutional activity, news events, or sentiment.
+“Leader” or “laggard” must be defined strictly vs other tickers in the same feed.
+Ignore absolute performance unless it is extreme vs peers.
+Analysis quality > coverage (do not mention every ticker).
+
+If ticker missing or not in feed:
 "Provided ticker is unknown."
-Analysis quality matters more than mentioning every ticker.
-Do not repeat raw percentages without interpretation.
 
 TASK:
-Write a high-conviction hedge fund desk note.
-
-Identify:
-
-strongest momentum leaders
-weakest laggards
-unusual/outlier moves
-sector rotation
-relative strength winners
-best long and short setups
-
-If a ticker is provided:
-
-Compare it directly against the leaders.
-Classify it as exactly ONE:
-leader
-breakout
-laggard
-overextended
-avoid
+Write a momentum desk note focused on relative positioning and dislocations.
 
 OUTPUT:
 
-Market Regime
-Bullish Leaders
-Bearish Laggards
-Outlier Moves
-Suggested Ticker Review (only if ticker exists)
+Tape Structure
+Describe internal rotation using only relative winners vs losers.
+Relative Strength Leaders
+Rank strongest names vs rest of feed.
+Explain only in terms of relative outperformance.
+Breakdown Names
+Rank weakest relative underperformers.
+Dislocations
+Highlight largest gaps between leaders and laggards.
+Focus on divergence, acceleration, or compression vs peers.
+Ticker Review (only if provided)
+Classify EXACTLY ONE:
+leader / breakout / laggard / overextended / avoid
+Must be based ONLY on ranking vs feed peers.
 
 STYLE:
 
-Concise, aggressive, trader-style language.
-Sound like an institutional momentum desk.
-Prioritize positioning and conviction.
-No filler.
-No educational tone.
+Institutional desk tone.
+No narrative framing.
+No references to news, flows, or institutional activity.
+No hedging language.
 No tables.
-Under 220 words.
-
-NEVER USE:
-
-"slightly"
-"potentially"
-"could"
-"appears"
-"mixed"
-
-GOOD STYLE EXAMPLE:
-"Momentum concentrated in semis while consumer names are being liquidated. IBM is the runaway leader and clear relative strength winner. INTU breakdown looks like institutional distribution, not noise."
-`;
+Under 200 words.`;
 
   out.value = "Thinking...";
 
