@@ -134,53 +134,66 @@ ${suggest || "None"}
 
 RULES:
 
-Use ONLY information present in the feed.
-Do not invent catalysts, news, earnings data, or macro context.
-If the suggested ticker is invalid or absent from the feed, state:
+Use ONLY the feed.
+No outside news, catalysts, macro, or earnings assumptions.
+If ticker is invalid or missing from the feed, say:
 "Provided ticker is unknown."
-Do not discuss any ticker outside the feed unless required by the invalid ticker response.
+Analysis quality matters more than mentioning every ticker.
+Do not repeat raw percentages without interpretation.
 
-OBJECTIVE:
-Write a hedge fund-style momentum desk note focused on:
+TASK:
+Write a high-conviction hedge fund desk note.
 
-strongest upside momentum
-weakest downside momentum
-abnormal/outlier price action
-relative strength and sector leadership
-actionable long and short setups
+Identify:
 
-REQUIRED OUTPUT:
+strongest momentum leaders
+weakest laggards
+unusual/outlier moves
+sector rotation
+relative strength winners
+best long and short setups
 
-Market Regime
-One sentence describing overall tape behavior.
-Bullish Leaders
-Rank top bullish setups from strongest to weakest.
-Include brief reasoning using ONLY feed behavior.
-Bearish Laggards
-Rank weakest setups from worst to less weak.
-Explain why they are failing.
-Outlier Moves
-Identify unusual volatility, squeezes, breakdowns, reversals, or relative strength divergence.
-Suggested Ticker Review
-If a ticker is provided, classify it as exactly ONE:
+If a ticker is provided:
+
+Compare it directly against the leaders.
+Classify it as exactly ONE:
 leader
 breakout
 laggard
 overextended
 avoid
-Compare it directly against the strongest names in the feed.
+
+OUTPUT:
+
+Market Regime
+Bullish Leaders
+Bearish Laggards
+Outlier Moves
+Suggested Ticker Review (only if ticker exists)
 
 STYLE:
 
-Sound like an institutional trading desk note.
-Be decisive and high-conviction.
-Prioritize positioning and relative strength.
-No filler, no disclaimers, no educational tone.
+Concise, aggressive, trader-style language.
+Sound like an institutional momentum desk.
+Prioritize positioning and conviction.
+No filler.
+No educational tone.
 No tables.
-Maximum 220 words.
+Under 220 words.
+
+NEVER USE:
+
+"slightly"
+"potentially"
+"could"
+"appears"
+"mixed"
+
+GOOD STYLE EXAMPLE:
+"Momentum concentrated in semis while consumer names are being liquidated. IBM is the runaway leader and clear relative strength winner. INTU breakdown looks like institutional distribution, not noise."
 `;
 
-  out.value = "Sending to Groq...";
+  out.value = "Thinking...";
 
   try {
     const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
