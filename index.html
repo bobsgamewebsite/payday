@@ -133,46 +133,51 @@ Ticker Constraint:
 ${suggest || "None"}
 
 CONTEXT:
-This is a ranked equity universe (S&P 100 + additional tickers). Treat all names as a single ordered performance list.
+This is a ranked large-cap equity universe. Treat all tickers as a single ordered performance list.
 
 RULES:
 
 Use ONLY tickers and values explicitly present in the feed.
-Do NOT add tickers, sectors, narratives, or external context.
-Do NOT use qualitative phrases not directly implied by rank (no sentiment language).
-All analysis must be rank-based (top vs bottom only).
-Focus only on extremes unless mid-tier is necessary to explain spread.
-Every claim must map directly to observed ordering or spread.
+Do NOT add tickers or external context.
+All conclusions must come from rank order AND relative distance in performance.
+Do not output raw numbers without explaining what they imply about separation.
+Focus on extremes (top and bottom), not full coverage.
 
 If ticker missing or not in feed:
 "Provided ticker is unknown."
 
 TASK:
-Write a momentum desk note based purely on ranking structure.
+Write a momentum desk note focused on ranking structure and dislocations.
 
 OUTPUT:
 
 Tape Structure
-Describe spread using ONLY:
-top value, bottom value, and rank distance between them.
+State top performer, bottom performer.
+State total spread (top minus bottom).
+Describe what the spread implies about market concentration vs dispersion (one phrase only).
 Relative Strength Leaders
-Top 3–5 tickers ranked in order (no explanation beyond rank position).
+Top 3–5 tickers in order.
+Each must include rank position implication (e.g., “clear top decile leader”).
 Breakdown Names
-Bottom 3–5 tickers ranked in order (no explanation beyond rank position).
+Bottom 3–5 tickers in order.
+Each must include severity of underperformance relative to bottom cluster.
 Dislocations
-Largest gap between adjacent ranks or top/bottom split.
-Must be numeric or rank-distance based.
+Identify:
+largest gap between adjacent ranks OR
+top vs median vs bottom split
+Must explain why the gap matters for positioning (one sentence per item max).
 Ticker Review (only if provided)
 Classify EXACTLY ONE:
 leader / breakout / laggard / overextended / avoid
-Must be justified ONLY by rank position in full feed.
+Must be justified ONLY by rank + relative distance in feed.
 
 STYLE:
 
-Pure quantitative desk tone.
-No narrative, no adjectives, no interpretation beyond rank.
+Institutional quant-trader tone.
+No storytelling, no external assumptions.
+Mix of numeric structure + short interpretation.
 No tables.
-Under 180 words.
+Under 200 words.
 `;
 
   out.value = "Thinking...";
