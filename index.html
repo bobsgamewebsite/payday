@@ -132,47 +132,52 @@ ${feed}
 Ticker Constraint:
 ${suggest || "None"}
 
+CONTEXT:
+The feed represents a broad large-cap universe (S&P 100 + additional tickers). Treat it as a single ranked market, not thematic subsets.
+
 RULES:
 
-Use ONLY the feed.
-Do not invent catalysts, news, or flows.
-All conclusions must come from relative price comparison across tickers in the feed.
-Do NOT infer institutional activity, news events, or sentiment.
-“Leader” or “laggard” must be defined strictly vs other tickers in the same feed.
-Ignore absolute performance unless it is extreme vs peers.
-Analysis quality > coverage (do not mention every ticker).
+Use ONLY tickers and data explicitly present in the feed.
+Do NOT add any new tickers or assume missing ones.
+Do NOT infer sectors, macro themes, or news.
+All conclusions must be based strictly on relative performance ranking within the full feed.
+Leaders and laggards are defined by position in the full distribution, not by narrative grouping.
+Ignore absolute moves unless they materially separate from the rest of the feed.
+Focus on extremes (top and bottom of the distribution only).
 
 If ticker missing or not in feed:
 "Provided ticker is unknown."
 
 TASK:
-Write a momentum desk note focused on relative positioning and dislocations.
+Produce a hedge fund momentum desk note based on full-universe ranking.
 
 OUTPUT:
 
 Tape Structure
-Describe internal rotation using only relative winners vs losers.
+Describe the overall distribution (broad risk-on, dispersion, or concentration).
+Must reference only relative spread between top and bottom performers.
 Relative Strength Leaders
-Rank strongest names vs rest of feed.
-Explain only in terms of relative outperformance.
+Top 3–5 names in the entire feed ranked in order.
+Explain only relative outperformance vs rest of universe.
 Breakdown Names
-Rank weakest relative underperformers.
+Bottom 3–5 names ranked in order.
+Emphasize severity of underperformance vs peers.
 Dislocations
-Highlight largest gaps between leaders and laggards.
-Focus on divergence, acceleration, or compression vs peers.
+Largest gaps between top and bottom of the full feed.
+Focus only on ranking divergence.
 Ticker Review (only if provided)
 Classify EXACTLY ONE:
 leader / breakout / laggard / overextended / avoid
-Must be based ONLY on ranking vs feed peers.
+Must be justified strictly by full-universe rank.
 
 STYLE:
 
-Institutional desk tone.
-No narrative framing.
-No references to news, flows, or institutional activity.
-No hedging language.
+Institutional trading desk tone.
+No narrative framing or sector storytelling.
+No external assumptions (news, flows, sentiment).
 No tables.
-Under 200 words.`;
+Under 200 words.
+`;
 
   out.value = "Thinking...";
 
