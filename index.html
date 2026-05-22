@@ -39,17 +39,14 @@ button { margin-top:12px; margin-bottom:12px; padding:12px 12px; background:#16A
 </div>
 
 <script>
-/* Config */
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/1EKabJN1aa_60cvTNJbcA3TElIayT3OjrH7lx793fFew/gviz/tq?tqx=out:json";
-const ENDPOINT = "/_svc"; // neutral path to avoid common blockers
+const ENDPOINT = "/_svc";
 
-/* Utilities */
 function fmt(n, d = 2) {
   if (n === null || n === undefined || isNaN(n)) return "-";
   return Number(n).toFixed(d);
 }
 
-/* Read Google sheet (gviz JSON) */
 async function readSheetCache() {
   const r = await fetch(SHEET_URL);
   const text = await r.text();
@@ -59,7 +56,6 @@ async function readSheetCache() {
   return rows;
 }
 
-/* Build feed string */
 async function buildFeed() {
   const rows = await readSheetCache();
   return rows
@@ -67,7 +63,6 @@ async function buildFeed() {
     .join("\n");
 }
 
-/* Main: run analyst */
 async function runAnalyst() {
   const out = document.getElementById("aiOutput");
   const suggest = document.getElementById("suggestBox").value.trim();
