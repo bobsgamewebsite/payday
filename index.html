@@ -86,7 +86,7 @@ button {
 <body>
 <header>
   <img src="payday-logo.svg">
-  Version v1.6
+  Version v2.0
 </header>
 
 <div class="container">
@@ -104,8 +104,6 @@ button {
 </div>
 
 <script>
-const GROQ_KEY = "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";
-
 const SHEET_URL =
   "https://docs.google.com/spreadsheets/d/1EKabJN1aa_60cvTNJbcA3TElIayT3OjrH7lx793fFew/gviz/tq?tqx=out:json";
 
@@ -138,85 +136,23 @@ async function runAnalyst() {
 
   const feed = await buildFeed();
 
-  const finalPrompt = `
-PAYDAY ANALYST INPUT
-
-Market Feed:
-${feed}
-
-Ticker Constraint:
-${suggest || "None"}
-
-CONTEXT:
-This is a ranked large-cap equity universe. Treat all tickers as a single ordered performance list.
-
-RULES:
-
-Use ONLY tickers and values explicitly present in the feed.
-Do NOT add tickers or external context.
-All conclusions must come from rank order AND relative distance in performance.
-Do not output raw numbers without explaining what they imply about separation.
-Focus on extremes (top and bottom), not full coverage.
-
-If ticker missing or not in feed:
-"Provided ticker is unknown."
-
-TASK:
-Write a momentum desk note focused on ranking structure and dislocations.
-
-OUTPUT:
-
-State top performer, bottom performer.
-State total spread (top minus bottom).
-Describe what the spread implies about market concentration vs dispersion (one phrase only).
-Relative Strength Leaders
-Top 3–5 tickers in order.
-Each must include rank position implication (e.g., “clear top decile leader”).
-Breakdown Names
-Bottom 3–5 tickers in order.
-Each must include severity of underperformance relative to bottom cluster.
-Dislocations
-Identify:
-largest gap between adjacent ranks OR
-top vs median vs bottom split
-Must explain why the gap matters for positioning (one sentence per item max).
-Ticker Review (only if provided)
-Classify EXACTLY ONE:
-leader / breakout / laggard / overextended / avoid
-Must be justified ONLY by rank + relative distance in feed.
-
-STYLE:
-
-Institutional quant-trader tone.
-No storytelling, no external assumptions.
-Mix of numeric structure + short interpretation.
-No tables.
-Under 200 words.
-`;
-
   out.value = "Thinking...";
 
   try {
-    const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const r = await fetch("/api", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + GROQ_KEY
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages: [
-          { role: "system", content: "You are Payday, a sharp, opinionated equity market analyst. Be direct, structured, and actionable." },
-          { role: "user", content: finalPrompt }
-        ]
+        feed,
+        suggest
       })
     });
 
     const j = await r.json();
     const text = j?.choices?.[0]?.message?.content;
-    out.value = text || "Groq returned no content.";
+    out.value = text || "Worker returned no content.";
   } catch (e) {
-    out.value = "Groq request failed: " + e.message;
+    out.value = "Worker request failed: " + e.message;
   }
 }
 
