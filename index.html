@@ -75,7 +75,7 @@ button {
 <body>
 <header>
   <img src="payday-logo.svg">
-  Version v1.5
+  Version v1.6
 </header>
 
 <div class="container">
@@ -133,50 +133,46 @@ Ticker Constraint:
 ${suggest || "None"}
 
 CONTEXT:
-The feed represents a broad large-cap universe (S&P 100 + additional tickers). Treat it as a single ranked market, not thematic subsets.
+This is a ranked equity universe (S&P 100 + additional tickers). Treat all names as a single ordered performance list.
 
 RULES:
 
-Use ONLY tickers and data explicitly present in the feed.
-Do NOT add any new tickers or assume missing ones.
-Do NOT infer sectors, macro themes, or news.
-All conclusions must be based strictly on relative performance ranking within the full feed.
-Leaders and laggards are defined by position in the full distribution, not by narrative grouping.
-Ignore absolute moves unless they materially separate from the rest of the feed.
-Focus on extremes (top and bottom of the distribution only).
+Use ONLY tickers and values explicitly present in the feed.
+Do NOT add tickers, sectors, narratives, or external context.
+Do NOT use qualitative phrases not directly implied by rank (no sentiment language).
+All analysis must be rank-based (top vs bottom only).
+Focus only on extremes unless mid-tier is necessary to explain spread.
+Every claim must map directly to observed ordering or spread.
 
 If ticker missing or not in feed:
 "Provided ticker is unknown."
 
 TASK:
-Produce a hedge fund momentum desk note based on full-universe ranking.
+Write a momentum desk note based purely on ranking structure.
 
 OUTPUT:
 
 Tape Structure
-Describe the overall distribution (broad risk-on, dispersion, or concentration).
-Must reference only relative spread between top and bottom performers.
+Describe spread using ONLY:
+top value, bottom value, and rank distance between them.
 Relative Strength Leaders
-Top 3–5 names in the entire feed ranked in order.
-Explain only relative outperformance vs rest of universe.
+Top 3–5 tickers ranked in order (no explanation beyond rank position).
 Breakdown Names
-Bottom 3–5 names ranked in order.
-Emphasize severity of underperformance vs peers.
+Bottom 3–5 tickers ranked in order (no explanation beyond rank position).
 Dislocations
-Largest gaps between top and bottom of the full feed.
-Focus only on ranking divergence.
+Largest gap between adjacent ranks or top/bottom split.
+Must be numeric or rank-distance based.
 Ticker Review (only if provided)
 Classify EXACTLY ONE:
 leader / breakout / laggard / overextended / avoid
-Must be justified strictly by full-universe rank.
+Must be justified ONLY by rank position in full feed.
 
 STYLE:
 
-Institutional trading desk tone.
-No narrative framing or sector storytelling.
-No external assumptions (news, flows, sentiment).
+Pure quantitative desk tone.
+No narrative, no adjectives, no interpretation beyond rank.
 No tables.
-Under 200 words.
+Under 180 words.
 `;
 
   out.value = "Thinking...";
