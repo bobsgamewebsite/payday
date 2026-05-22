@@ -1,3 +1,3 @@
 export async function onRequest(context) {
-  return context.env["payday-proxy"].fetch(context.request);
+  return new Response("FUNCTION_OK", { status: 200, headers: { "Content-Type": "text/plain" } });
 }
