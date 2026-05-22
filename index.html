@@ -69,13 +69,25 @@ button {
   cursor:pointer;
   font-size:15px;
 }
+
+/* Subtle disclaimer footer */
+#disclaimer {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #666;
+  text-align: right;
+  padding-right: 4px;
+  border-top: 1px solid #e5e5e5;
+  padding-top: 6px;
+  font-style: italic;
+}
 </style>
 </head>
 
 <body>
 <header>
   <img src="payday-logo.svg">
-  Version v1.6
+  Version v1.6 AIO
 </header>
 
 <div class="container">
@@ -86,6 +98,10 @@ button {
 
   <h2>Payday Analyst Output</h2>
   <textarea id="aiOutput" readonly></textarea>
+
+  <div id="disclaimer">
+    All data is provided for informational purposes only, and is not intended for trading purposes or financial, investment, tax, legal, accounting or other advice.
+  </div>
 </div>
 
 <script>
