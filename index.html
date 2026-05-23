@@ -92,7 +92,6 @@ async function runAnalyst() {
 
     clearTimeout(timeout);
 
-    // handle non-JSON or error status gracefully
     const contentType = res.headers.get("content-type") || "";
     if (!res.ok) {
       const text = contentType.includes("application/json") ? await res.json().catch(() => null) : await res.text().catch(() => null);
@@ -108,16 +107,13 @@ async function runAnalyst() {
       try { j = JSON.parse(raw); } catch (e) { j = { note: raw }; }
     }
 
-    // Worker may return { ok:true, note: "..." } or chat-style choices
     const text = j?.note || j?.choices?.[0]?.message?.content || j?.message || (typeof j === "string" ? j : null);
     out.value = text || "Worker returned no content.";
   } catch (e) {
-    // AbortController aborts produce a DOMException with name 'AbortError'
     out.value = "Worker request failed: " + (e && e.message ? e.message : String(e));
   }
 }
 
-/* Wire up */
 document.getElementById("runBtn").onclick = runAnalyst;
 </script>
 
