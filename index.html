@@ -5,14 +5,33 @@
 <title>Payday</title>
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
 <style>
 body { margin: 0; font-family: Arial, sans-serif; background: #f5f5f5; color: #111; overflow-x: hidden; }
 header { background:#1d2228; color:white; padding:10px 24px; font-size:22px; font-weight:bold; border-bottom:4px solid #16A34A; display:flex; align-items:center; gap:12px; }
 header img { height:32px; width:auto; display:block; }
 .container { width:90vw; max-width:1600px; margin:30px auto; background:white; padding:28px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.15); }
 h2 { margin-top:0; font-size:20px; font-weight:bold; color:#333; }
-input, textarea { width:100%; padding:12px; border:1px solid #ccc; border-radius:6px; font-family:Consolas, monospace; font-size:14px; box-sizing:border-box; }
-#aiOutput { height:500px; resize:vertical; }
+input { width:100%; padding:12px; border:1px solid #ccc; border-radius:6px; font-family:Consolas, monospace; font-size:14px; box-sizing:border-box; }
+#aiOutput {
+  min-height: 500px;
+  resize: vertical;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 12px;
+  background: #fff;
+  overflow: auto;
+  font-family: Arial, sans-serif;
+  line-height: 1.5;
+}
+#aiOutput h1, #aiOutput h2, #aiOutput h3 { margin-top: 1em; }
+#aiOutput p { margin: 0.6em 0; }
+#aiOutput ul, #aiOutput ol { margin: 0.6em 0 0.6em 1.5em; }
+#aiOutput code { background: #f3f3f3; padding: 2px 4px; border-radius: 4px; font-family: Consolas, monospace; }
+#aiOutput pre { background: #f3f3f3; padding: 10px; border-radius: 6px; overflow-x: auto; }
 button { margin-top:12px; margin-bottom:12px; padding:12px 12px; background:#16A34A; border:none; border-radius:10px; color:white; font-weight:bold; cursor:pointer; font-size:15px; }
 #disclaimer { margin-top: 8px; font-size: 12px; color: #666; text-align: right; padding-right: 4px; border-top: 1px solid #e5e5e5; padding-top: 6px; font-style: italic; }
 </style>
@@ -31,7 +50,7 @@ button { margin-top:12px; margin-bottom:12px; padding:12px 12px; background:#16A
   <button id="runBtn">Run Payday</button>
 
   <h2>Payday AI Analyst Output</h2>
-  <textarea id="aiOutput" readonly></textarea>
+  <div id="aiOutput"></div>
 
   <div id="disclaimer">
     © 2026 Payday. All rights reserved. All data is provided for informational purposes only, and is not intended for trading purposes or financial, investment, tax, legal, accounting or other advice.
@@ -45,6 +64,17 @@ const ENDPOINT = "/api/post";
 function fmt(n, d = 2) {
   if (n === null || n === undefined || isNaN(n)) return "-";
   return Number(n).toFixed(d);
+}
+
+function setOutputMarkdown(text) {
+  const out = document.getElementById("aiOutput");
+  const safeHtml = DOMPurify.sanitize(marked.parse(text || ""));
+  out.innerHTML = safeHtml;
+}
+
+function setOutputText(text) {
+  const out = document.getElementById("aiOutput");
+  out.textContent = text;
 }
 
 async function readSheetCache() {
@@ -64,20 +94,19 @@ async function buildFeed() {
 }
 
 async function runAnalyst() {
-  const out = document.getElementById("aiOutput");
   const suggest = document.getElementById("suggestBox").value.trim();
 
-  out.value = "Loading market data...";
+  setOutputText("Loading market data...");
 
   let feed;
   try {
     feed = await buildFeed();
   } catch (err) {
-    out.value = "Failed to load market data: " + (err && err.message ? err.message : String(err));
+    setOutputText("Failed to load market data: " + (err && err.message ? err.message : String(err)));
     return;
   }
 
-  out.value = "Thinking...";
+  setOutputText("Thinking...");
 
   try {
     const controller = new AbortController();
@@ -94,8 +123,10 @@ async function runAnalyst() {
 
     const contentType = res.headers.get("content-type") || "";
     if (!res.ok) {
-      const text = contentType.includes("application/json") ? await res.json().catch(() => null) : await res.text().catch(() => null);
-      out.value = "Worker returned error: " + (text && text.error ? text.error : res.status + " " + res.statusText);
+      const text = contentType.includes("application/json")
+        ? await res.json().catch(() => null)
+        : await res.text().catch(() => null);
+      setOutputText("Worker returned error: " + (text && text.error ? text.error : res.status + " " + res.statusText));
       return;
     }
 
@@ -108,9 +139,14 @@ async function runAnalyst() {
     }
 
     const text = j?.note || j?.choices?.[0]?.message?.content || j?.message || (typeof j === "string" ? j : null);
-    out.value = text || "Worker returned no content.";
+
+    if (text) {
+      setOutputMarkdown(text);
+    } else {
+      setOutputText("Worker returned no content.");
+    }
   } catch (e) {
-    out.value = "Worker request failed: " + (e && e.message ? e.message : String(e));
+    setOutputText("Worker request failed: " + (e && e.message ? e.message : String(e)));
   }
 }
 
